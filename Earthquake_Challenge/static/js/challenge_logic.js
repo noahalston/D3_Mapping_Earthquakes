@@ -15,13 +15,6 @@ let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/sate
 	accessToken: API_KEY
 });
 
-// Create the map object with center, zoom level and default layer.
-let map = L.map('mapid', {
-	center: [40.7, -94.5],
-	zoom: 3,
-	layers: [streets]
-});
-
 // Create a base layer that holds all three maps.
 let baseMaps = {
   "Streets": streets,
@@ -29,13 +22,24 @@ let baseMaps = {
 };
 
 // 1. Add a 2nd layer group for the tectonic plate data.
-let allEarthquakes = new L.LayerGroup();
+let tectonicPlates = new L.LayerGroup();
 
+// Add a 3rd layer group for the earthquakes data.
+let allEarthquakes = new L.LayerGroup();
 
 // 2. Add a reference to the tectonic plates group to the overlays object.
 let overlays = {
+  "Tectonic Plates": tectonicPlates,
   "Earthquakes": allEarthquakes
 };
+
+// Create the map object with center, zoom level and default layer.
+// The earthquake and tectonic plates overlays are displayed by default when the map is loaded.
+let map = L.map('mapid', {
+	center: [40.7, -94.5],
+	zoom: 3,
+	layers: [streets, allEarthquakes]
+});
 
 // Then we add a control to the map that will allow the user to change which
 // layers are visible.
@@ -49,13 +53,13 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
   // to calculate the color and radius.
   function styleInfo(feature) {
     return {
-      opacity: 1,
+      opacity: 0.6,
       fillOpacity: 1,
       fillColor: getColor(feature.properties.mag),
       color: "#000000",
       radius: getRadius(feature.properties.mag),
       stroke: true,
-      weight: 0.5
+      weight: 1
     };
   }
 
@@ -139,9 +143,21 @@ legend.onAdd = function() {
   // Finally, we our legend to the map.
   legend.addTo(map);
 
+  // Create a style for the lines of the tectronic plate (styled in orange with a weight of 2)
+  let myStyle = {
+    color: "#ee9c00",
+    weight: 2
+  }
 
   // 3. Use d3.json to make a call to get our Tectonic Plate geoJSON data.
-/*   d3.json().then(() {
-    
-  }); */
+  d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json").then(function(plateData) {
+      // console.log(plateData);
+      // Creating a GeoJSON layer with the retrieved data.
+      L.geoJson(plateData, {
+        style: myStyle
+      }).addTo(tectonicPlates);
+
+      // Add the tectonic layer to the map.
+      tectonicPlates.addTo(map);
+  });
 });

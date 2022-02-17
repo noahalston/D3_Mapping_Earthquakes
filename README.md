@@ -10,3 +10,5 @@ Basil and Sadhana like how you created your earthquake map with two different ma
 2. Deliverable 2: Add Major Earthquake Data
 3. Deliverable 3: Add an Additional Map
 
+## Result
+![Image 1](.\Earthquake_Challenge\static\image\output1.jpg)
